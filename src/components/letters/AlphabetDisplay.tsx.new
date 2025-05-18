@@ -1,0 +1,173 @@
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { InteractiveButton } from '../common/InteractiveButton';
+import { animalImages, getAnimalsForLetter } from '../../resources/imageMapping';
+import { SoundButton } from '../common/SoundButton';
+import { AnimalCard } from '../common/AnimalCard';
+import { textToSpeechService } from '../../services/tts/textToSpeechService';
+
+// ... existing styled components remain the same ...
+
+export const AlphabetDisplay = () => {
+  const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
+  const [currentAnimalIndex, setCurrentAnimalIndex] = useState(0);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isNavVisible, setIsNavVisible] = useState(false);
+  const [autoCollapseTimer, setAutoCollapseTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const currentLetter = alphabet[currentLetterIndex];
+  const animalsForCurrentLetter = getAnimalsForLetter(currentLetter);
+
+  const startAutoCollapseTimer = () => {
+    if (autoCollapseTimer) {
+      clearTimeout(autoCollapseTimer);
+    }
+    const timer = setTimeout(() => {
+      setIsNavVisible(false);
+    }, 5000);
+    setAutoCollapseTimer(timer);
+  };
+
+  const handleNavInteraction = () => {
+    startAutoCollapseTimer();
+  };
+
+  const handleScroll = (direction: 'up' | 'down') => {
+    return () => {
+      const nav = document.querySelector('div[role="list"]');
+      if (nav) {
+        nav.scrollBy({ 
+          top: direction === 'up' ? -120 : 120, 
+          behavior: 'smooth' 
+        });
+      }
+      handleNavInteraction();
+    };
+  };
+
+  useEffect(() => {
+    return () => {
+      if (autoCollapseTimer) {
+        clearTimeout(autoCollapseTimer);
+      }
+    };
+  }, [autoCollapseTimer]);
+
+  useEffect(() => {
+    if (isNavVisible) {
+      startAutoCollapseTimer();
+    }
+  }, [isNavVisible]);
+
+  useEffect(() => {
+    setCurrentAnimalIndex(0);
+    setIsFirstLoad(false);
+    if (!isFirstLoad) {
+      textToSpeechService.speak(currentLetter);
+    }
+  }, [currentLetter, isFirstLoad]);
+
+  const handleNext = () => {
+    if (currentLetterIndex < alphabet.length - 1) {
+      setCurrentLetterIndex(currentLetterIndex + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentLetterIndex > 0) {
+      setCurrentLetterIndex(currentLetterIndex - 1);
+    }
+  };
+
+  const handleAnimalClick = () => {
+    if (currentAnimalIndex < animalsForCurrentLetter.length - 1) {
+      setCurrentAnimalIndex(prev => prev + 1);
+    } else {
+      setCurrentAnimalIndex(0);
+    }
+  };
+
+  return (
+    <Container
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <ToggleButton
+        onClick={() => setIsNavVisible(!isNavVisible)}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        ABC
+      </ToggleButton>
+
+      <AnimatePresence>
+        {isNavVisible && (
+          <AlphabetNav
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            onMouseMove={handleNavInteraction}
+            onTouchStart={handleNavInteraction}
+            onTouchMove={handleNavInteraction}
+            onScroll={handleNavInteraction}
+            onWheel={handleNavInteraction}
+          >
+            <NavigationButtonLeft
+              onClick={handleScroll('up')}
+              aria-label="Scroll up"
+              variant="secondary"
+              isNav
+            >
+              ↑
+            </NavigationButtonLeft>
+            <motion.div
+              role="list"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                flex: 1,
+                overflow: 'auto',
+                scrollBehavior: 'smooth',
+                paddingRight: '4px'
+              }}
+            >
+              {alphabet.map((letter) => {
+                const letterIndex = alphabet.indexOf(letter);
+                return (
+                  <AlphabetButton
+                    key={letter}
+                    active={letterIndex === currentLetterIndex}
+                    onClick={() => {
+                      setCurrentLetterIndex(letterIndex);
+                      setIsNavVisible(false);
+                    }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {letter}
+                  </AlphabetButton>
+                );
+              })}
+            </motion.div>
+            <NavigationButtonLeft
+              onClick={handleScroll('down')}
+              aria-label="Scroll down"
+              variant="secondary"
+              isNav
+            >
+              ↓
+            </NavigationButtonLeft>
+          </AlphabetNav>
+        )}
+      </AnimatePresence>
+
+      <ContentWrapper>
+        {/* ... rest of the component remains the same ... */}
+      </ContentWrapper>
+    </Container>
+  );
+};

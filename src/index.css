@@ -5,6 +5,37 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Improve touch targets on mobile */
+@media (max-width: 768px) {
+  button, 
+  [role="button"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Add smooth scrolling to the whole page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Improve focus visibility for accessibility */
+:focus {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* Hide focus outline for mouse users, keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 code {
