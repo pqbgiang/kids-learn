@@ -66,9 +66,9 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
   onClick,
   speakOnClick = true // Default to true for backward compatibility
 }) => {
-  const { highContrast } = useTheme();
-  const [isLoaded, setIsLoaded] = useState(isImageCached(image));
+  const { highContrast } = useTheme();  const [isLoaded, setIsLoaded] = useState(isImageCached(image));
   const [imageSrc, setImageSrc] = useState<string>(getOptimizedImageUrl(image));
+  const [imageError, setImageError] = useState(false);
   const [error, setError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = React.useRef<HTMLDivElement>(null);
@@ -130,12 +130,35 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
       handleClick();
     }
   };
-  
   const handleImageError = () => {
     setError(true);
-    // If original image fails, try fallback to .png if it was .jfif
+    console.warn(`Failed to load image: ${image}`);
+    setImageError(true);
+    
+    // Try different fallbacks:
+    // 1. First try replacing .jfif with .png
     if (image.endsWith('.jfif')) {
       setImageSrc(image.replace('.jfif', '.png'));
+      return;
+    }
+    
+    // 2. Try with PUBLIC_URL prefix for GitHub Pages
+    const baseUrl = process.env.PUBLIC_URL || '/kids-learn';
+    if (!image.includes(baseUrl)) {
+      setImageSrc(`${baseUrl}${image}`);
+      return;
+    }
+    
+    // 2. If the path doesn't include the full public URL prefix for GitHub Pages
+    if (image.startsWith('/') && process.env.PUBLIC_URL && !image.startsWith(process.env.PUBLIC_URL)) {
+      setImageSrc(`${process.env.PUBLIC_URL}${image}`);
+      return;
+    }
+    
+    // 3. If none of the above worked, try a direct path fix
+    if (image.startsWith('/')) {
+      const fixedPath = image.substring(1); // Remove the leading slash
+      setImageSrc(fixedPath);
     }
   };
   return (
@@ -181,25 +204,39 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
           Loading...
         </div>
       )}      {(isLoaded || error) && (
-        <AnimalImage 
-          src={imageSrc} 
-          srcSet={`${getOptimizedImageUrl(image, 150)} 150w, 
-                   ${getOptimizedImageUrl(image, 300)} 300w, 
-                   ${getOptimizedImageUrl(image, 450)} 450w`}
-          sizes="(max-width: 600px) 150px, 
-                 (max-width: 1200px) 300px, 
-                 450px"
-          alt={name}
-          loading="lazy"
-          decoding="async"
-          onError={handleImageError}
-          style={{ display: isLoaded ? 'block' : 'none' }}
-          highContrast={highContrast}
-          whileHover={{ 
-            scale: 1.1,
-            transition: { duration: 0.2 }
-          }}
-        />
+        <>          {error ? (
+            <div style={{
+              width: '100%',
+              height: '75%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '3rem',
+              color: highContrast ? '#fff' : '#2196F3'
+            }}>
+              {name.charAt(0).toUpperCase()} {/* Display first letter as placeholder */}
+            </div>          ) : (
+            <AnimalImage              src={imageSrc} 
+              srcSet={`${getOptimizedImageUrl(image, 150)} 150w, 
+                      ${getOptimizedImageUrl(image, 300)} 300w, 
+                      ${getOptimizedImageUrl(image, 450)} 450w`}
+              sizes="(max-width: 600px) 150px, 
+                    (max-width: 1200px) 300px, 
+                    450px"
+              alt={name}
+              loading="lazy"
+              decoding="async"
+              onError={handleImageError}
+              style={{ display: isLoaded ? 'block' : 'none' }}
+              highContrast={highContrast}
+              animate={{ scale: 1 }}
+              whileHover={{ 
+                scale: 1.1,
+                transition: { duration: 0.2 }
+              }}
+            />
+          )}
+        </>
       )}
       <AnimalName 
         highContrast={highContrast}

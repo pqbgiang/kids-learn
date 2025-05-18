@@ -8,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { colors } from '../../utils/theme';
 import { InteractiveButton } from '../common/InteractiveButton';
 import { soundManager } from '../../utils/sound';
+import { getOptimizedImageUrl } from '../../utils/imageLoader';
 
 const Container = styled.div`
   padding: 24px;
@@ -400,7 +401,15 @@ export const StoryList: React.FC = () => {
                   $highContrast={highContrast}
                 >
                   <FeaturedFlag>Featured</FeaturedFlag>
-                  <CoverImage src={story.coverImage} alt={story.title} $highContrast={highContrast} />                  <StoryInfo $highContrast={highContrast}>
+                  <CoverImage 
+                    src={getOptimizedImageUrl(story.coverImage)} 
+                    alt={story.title} 
+                    $highContrast={highContrast} 
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = `${process.env.PUBLIC_URL || '/kids-learn'}/images/stories/placeholder.png`;
+                    }}
+                  />                  <StoryInfo $highContrast={highContrast}>
                     <StoryTitle>{story.title}</StoryTitle>
                     <StoryDescription>{story.description}</StoryDescription>
                     <Details>
@@ -436,7 +445,15 @@ export const StoryList: React.FC = () => {
               transition={{ duration: 0.3, delay: Math.random() * 0.3 }}
               $highContrast={highContrast}
             >
-              <CoverImage src={story.coverImage} alt={story.title} $highContrast={highContrast} />              <StoryInfo $highContrast={highContrast}>
+              <CoverImage 
+                src={getOptimizedImageUrl(story.coverImage)} 
+                alt={story.title} 
+                $highContrast={highContrast}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `${process.env.PUBLIC_URL || '/kids-learn'}/images/stories/placeholder.png`;
+                }}
+              />              <StoryInfo $highContrast={highContrast}>
                 <StoryTitle>{story.title}</StoryTitle>
                 <Details>
                   <AgeBadge $highContrast={highContrast} age={story.recommendedAge}>

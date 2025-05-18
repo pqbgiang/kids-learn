@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation 
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { InteractiveButton } from './components/common/InteractiveButton';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { useTheme } from './context/ThemeContext';
 import { colors } from './utils/theme';
 import { AlphabetDisplay } from './components/letters/AlphabetDisplay';
 import { NumberDisplay } from './components/numbers/NumberDisplay';
@@ -31,6 +31,9 @@ const Navigation = styled.nav<{ highContrast: boolean }>`
   left: 0;
   right: 0;
   z-index: 1000;
+  display: flex;
+  justify-content: center; /* Center the navigation content */
+  align-items: center;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   box-shadow: 0 -4px 15px rgba(33, 150, 243, 0.3), 0 -2px 10px rgba(76, 175, 80, 0.3);
@@ -42,6 +45,8 @@ const NavList = styled.ul`
   padding: 0;
   display: flex;
   gap: 32px;
+  justify-content: center;
+  width: 100%;
   justify-content: space-around;
   align-items: center;
   width: 100%;

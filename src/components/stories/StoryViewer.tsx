@@ -6,6 +6,7 @@ import { InteractiveButton } from '../common/InteractiveButton';
 import { ProgressIndicator } from '../common/ProgressIndicator';
 import { soundManager } from '../../utils/sound';
 import { useScreenReader } from '../../utils/screenReader';
+import { getOptimizedImageUrl } from '../../utils/imageLoader';
 import { useTheme } from '../../context/ThemeContext';
 import { colors } from '../../utils/theme';
 import { StoryIcon } from './StoryIcon';
@@ -602,20 +603,23 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
           transition={{ duration: 0.5 }}
         >
           <BackgroundDecoration $highContrast={highContrast} />
-          
-          {currentPage && currentPage.image && (
+            {currentPage && currentPage.image && (
             <StoryImageContainer>
               <StoryImage 
-                src={currentPage.image} 
+                src={getOptimizedImageUrl(currentPage.image)}
                 alt={`Illustration for page ${currentPageIndex + 1}`}
                 $highContrast={highContrast}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `${process.env.PUBLIC_URL || '/kids-learn'}/images/stories/placeholder.png`;
+                }}
               />
               <ImageOverlay $highContrast={highContrast} />
             </StoryImageContainer>
-          )}          <AnimatePresence mode="wait">
+          )}<AnimatePresence mode="wait">
             <TextContainer 
               $simplified={useSimplifiedText}
               $highContrast={highContrast}

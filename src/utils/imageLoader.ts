@@ -118,8 +118,14 @@ export const preloadAdjacentLetterImages = (currentLetterIndex: number, alphabet
  * @returns Optimized image URL
  */
 export const getOptimizedImageUrl = (src: string, width: number = 300): string => {
-  // Prefer WebP format if available (to be implemented)
-  // For local files, we'd check if a WebP version exists
+  // Fix for GitHub Pages deployment - ensure paths are correct
+  // When using GitHub Pages, we need to prefix paths with the base URL
+  if (src.startsWith('/')) {
+    // Get the correct base URL from the homepage setting in package.json
+    // This ensures we handle both local development and GitHub Pages deployment
+    const baseUrl = process.env.PUBLIC_URL || '/kids-learn';
+    return `${baseUrl}${src}`;
+  }
   
   // WebP fallback logic - if we have WebP images
   // This checks if we're in a browser that supports WebP
@@ -147,7 +153,7 @@ export const getOptimizedImageUrl = (src: string, width: number = 300): string =
     return src.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
   }
   
-  // For now, just return the original source
+  // Return the source with any transformations applied
   return src;
 };
 
