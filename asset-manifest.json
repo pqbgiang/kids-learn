@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/kids-learn/static/css/main.f193c3a8.css",
+    "main.js": "/kids-learn/static/js/main.8dfe16ed.js",
+    "static/js/453.3480c1af.chunk.js": "/kids-learn/static/js/453.3480c1af.chunk.js",
+    "index.html": "/kids-learn/index.html",
+    "main.f193c3a8.css.map": "/kids-learn/static/css/main.f193c3a8.css.map",
+    "main.8dfe16ed.js.map": "/kids-learn/static/js/main.8dfe16ed.js.map",
+    "453.3480c1af.chunk.js.map": "/kids-learn/static/js/453.3480c1af.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f193c3a8.css",
+    "static/js/main.8dfe16ed.js"
+  ]
+}
