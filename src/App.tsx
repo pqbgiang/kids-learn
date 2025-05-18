@@ -133,7 +133,7 @@ const App = () => {
   const { highContrast, toggleHighContrast } = useTheme();
 
   return (
-    <Router>
+    <Router basename="/kids-learn">
       <AppContainer highContrast={highContrast}>
         <ContrastToggleButton
           onClick={toggleHighContrast}
