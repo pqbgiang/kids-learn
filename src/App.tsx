@@ -134,8 +134,11 @@ const ContrastToggleButton = styled(motion.button)<{ highContrast?: boolean }>`
   }
 `;
 
+//  Debug indicator removed - no longer needed
+
 const App = () => {
   const { highContrast, toggleHighContrast } = useTheme();
+    // Removed keyboard shortcut for cache clearing
 
   return (
     <Router basename="/kids-learn">
@@ -150,6 +153,7 @@ const App = () => {
         >
           {highContrast ? '☀️' : '🌙'}
         </ContrastToggleButton>
+          {/* Debug indicator removed */}
 
         <MainContentContainer>
           <Routes>

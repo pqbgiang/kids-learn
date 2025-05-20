@@ -66,8 +66,18 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
   onClick,
   speakOnClick = true // Default to true for backward compatibility
 }) => {
-  const { highContrast } = useTheme();  const [isLoaded, setIsLoaded] = useState(isImageCached(image));
-  const [imageSrc, setImageSrc] = useState<string>(getOptimizedImageUrl(image));
+  const { highContrast } = useTheme();  // Use the getOptimizedImageUrl function from imageLoader utility directly
+  // instead of reimplementing the same logic here
+  const normalizeImagePath = (path: string): string => {
+    // Use the standardized getOptimizedImageUrl function
+    return getOptimizedImageUrl(path);
+  };
+  
+  const normalizedImagePath = normalizeImagePath(image);
+  
+  // Always start with isLoaded=false to force image loading
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>(normalizedImagePath);
   const [imageError, setImageError] = useState(false);
   const [error, setError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -97,22 +107,39 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
         observer.unobserve(cardRef.current);
       }
     };
-  }, []);
-  
-  // Load the image only when it becomes visible or is cached
+  }, []);  // Load the image only when it becomes visible
   useEffect(() => {
-    // If already cached or not yet visible, don't load
-    if (!isVisible && !isImageCached(image)) {
+    // Only load when the image is visible
+    if (!isVisible) {
       return;
     }
     
-    // Load the image
-    if (!isImageCached(image)) {
-      preloadImage(image)
-        .then(() => setIsLoaded(true))
-        .catch(() => setError(true));
-    }
-  }, [image, isVisible]);
+    // Always try to load the image using our improved preloadImage function
+    // which already includes fallback mechanisms
+    preloadImage(normalizedImagePath)
+      .then(() => {
+        setIsLoaded(true);
+      })
+      .catch((err) => {
+        // Try one more specific fallback approach using the normalized animal name
+        // This addresses cases where the filename doesn't match the expected pattern
+        const animalName = name.toLowerCase().replace(/\s+/g, '-');
+        
+        // Get the PUBLIC_URL from environment variable or use empty string for local development
+        const publicUrl = process.env.PUBLIC_URL || '';
+        const fallbackPath = `${publicUrl}/images/animals/${animalName}.png`;
+        
+        preloadImage(fallbackPath)
+          .then(() => {
+            setImageSrc(fallbackPath);
+            setIsLoaded(true);
+          })
+          .catch(() => {
+            console.error(`Failed to load image for ${name}`);
+            setError(true);
+          });
+      });
+  }, [normalizedImagePath, isVisible, name]);
   const handleClick = async () => {
     if (speakOnClick) {
       try {
@@ -129,37 +156,40 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
       e.preventDefault();
       handleClick();
     }
-  };
-  const handleImageError = () => {
-    setError(true);
-    console.warn(`Failed to load image: ${image}`);
+  };  const handleImageError = () => {
+    // Mark the error state but don't immediately give up
     setImageError(true);
     
-    // Try different fallbacks:
-    // 1. First try replacing .jfif with .png
-    if (image.endsWith('.jfif')) {
-      setImageSrc(image.replace('.jfif', '.png'));
+    // Try a sequence of fallback strategies in order of likelihood to succeed
+    
+    // 1. Try with animal name as filename (most reliable)
+    const animalName = name.toLowerCase().replace(/\s+/g, '-');
+    const publicUrl = process.env.PUBLIC_URL || '';
+    const filenameFallback = `${publicUrl}/images/animals/${animalName}.png`;
+    
+    if (imageSrc !== filenameFallback) {
+      setImageSrc(filenameFallback);
       return;
     }
     
-    // 2. Try with PUBLIC_URL prefix for GitHub Pages
-    const baseUrl = process.env.PUBLIC_URL || '/kids-learn';
-    if (!image.includes(baseUrl)) {
-      setImageSrc(`${baseUrl}${image}`);
+    // 2. If we end up with .jfif extension, try .png instead
+    if (imageSrc.endsWith('.jfif')) {
+      const newPath = imageSrc.replace('.jfif', '.png');
+      setImageSrc(newPath);
       return;
     }
     
-    // 2. If the path doesn't include the full public URL prefix for GitHub Pages
-    if (image.startsWith('/') && process.env.PUBLIC_URL && !image.startsWith(process.env.PUBLIC_URL)) {
-      setImageSrc(`${process.env.PUBLIC_URL}${image}`);
+    // 3. Try with correct PUBLIC_URL prefix
+    if (publicUrl && !imageSrc.includes(publicUrl)) {
+      // Ensure the path starts with a slash before adding publicUrl
+      const normalizedSrcPath = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
+      const newPath = `${publicUrl}${normalizedSrcPath}`;
+      setImageSrc(newPath);
       return;
     }
     
-    // 3. If none of the above worked, try a direct path fix
-    if (image.startsWith('/')) {
-      const fixedPath = image.substring(1); // Remove the leading slash
-      setImageSrc(fixedPath);
-    }
+    // If we've exhausted all fallbacks, mark as error
+    setError(true);
   };
   return (
     <Card
@@ -215,14 +245,9 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
               color: highContrast ? '#fff' : '#2196F3'
             }}>
               {name.charAt(0).toUpperCase()} {/* Display first letter as placeholder */}
-            </div>          ) : (
-            <AnimalImage              src={imageSrc} 
-              srcSet={`${getOptimizedImageUrl(image, 150)} 150w, 
-                      ${getOptimizedImageUrl(image, 300)} 300w, 
-                      ${getOptimizedImageUrl(image, 450)} 450w`}
-              sizes="(max-width: 600px) 150px, 
-                    (max-width: 1200px) 300px, 
-                    450px"
+            </div>          ) : (            <AnimalImage              
+              src={imageSrc}
+              // Use the same optimized image path for consistency
               alt={name}
               loading="lazy"
               decoding="async"

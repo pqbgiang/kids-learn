@@ -700,7 +700,7 @@ export const preloadImages = async () => {
       const img = new Image();
       img.onload = resolve;
       img.onerror = reject;
-      img.src = animal.fileName;
+      img.src = 'kids-learn/' + animal.fileName;
     });
   });
   
