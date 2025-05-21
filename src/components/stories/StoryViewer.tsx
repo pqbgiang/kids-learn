@@ -136,6 +136,20 @@ const StoryText = styled(motion.p)<{ $highContrast: boolean; $fontSize: string }
   transition: all 0.3s ease-in-out;
 `;
 
+const TextModeIndicator = styled(motion.span)<{ $highContrast: boolean }>`
+  font-size: 0.7rem;
+  color: ${props => props.$highContrast ? colors.highContrast.primary : '#42A5F5'};
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: ${props => props.$highContrast ? 'rgba(0, 0, 0, 0.3)' : 'rgba(33, 150, 243, 0.08)'};
+  padding: 4px 8px;
+  border-radius: 4px;
+  width: fit-content;
+`;
+
 const Choices = styled.div`
   display: flex;
   flex-direction: column;
@@ -222,14 +236,14 @@ const FontSizeControl = styled.div`
 
 const IconButton = styled(motion.button)<{ 
   active: boolean;
-  highContrast: boolean;
+  $highContrast: boolean;
 }>`
-  background: ${props => props.highContrast 
+  background: ${props => props.$highContrast 
     ? colors.highContrast.surface 
     : props.active 
       ? '#2196F3' 
       : 'rgba(255, 255, 255, 0.8)'};
-  border: ${props => props.highContrast ? '2px solid white' : '2px solid rgba(33, 150, 243, 0.2)'};
+  border: ${props => props.$highContrast ? '2px solid white' : '2px solid rgba(33, 150, 243, 0.2)'};
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -239,11 +253,10 @@ const IconButton = styled(motion.button)<{
   cursor: pointer;
   box-shadow: ${props => props.active ? '0 2px 8px rgba(0, 0, 0, 0.2)' : '0 1px 4px rgba(0, 0, 0, 0.1)'};
   transition: all 0.2s ease;
-
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    background: ${props => props.highContrast 
+    background: ${props => props.$highContrast 
       ? 'rgba(255, 255, 255, 0.2)'
       : props.active
         ? '#1976D2'
@@ -252,7 +265,7 @@ const IconButton = styled(motion.button)<{
 
   svg {
     font-size: 20px;
-    color: ${props => props.highContrast 
+    color: ${props => props.$highContrast 
       ? '#FFFFFF' 
       : props.active
         ? '#FFFFFF'
@@ -267,14 +280,14 @@ const FontSizeButton = styled(IconButton)<{ active: boolean; buttonSize?: 'small
   font-weight: bold;
 `;
 
-const ReadAloudButton = styled(IconButton)<{ active: boolean }>`
+const ReadAloudButton = styled(IconButton)<{ active: boolean; $highContrast: boolean }>`
   background: ${props => props.active 
-    ? props.highContrast ? colors.highContrast.primary : '#4CAF50' 
-    : props.highContrast ? colors.highContrast.surface : 'rgba(255, 255, 255, 0.8)'};
+    ? props.$highContrast ? colors.highContrast.primary : '#4CAF50' 
+    : props.$highContrast ? colors.highContrast.surface : 'rgba(255, 255, 255, 0.8)'};
   border-color: ${props => props.active ? '#2E7D32' : 'rgba(33, 150, 243, 0.2)'};
   
   svg {
-    color: ${props => props.highContrast 
+    color: ${props => props.$highContrast 
       ? '#FFFFFF' 
       : props.active
         ? '#FFFFFF'
@@ -387,7 +400,7 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
           }}
           aria-label="Return to story list"
           title="Go back to story list"
-          highContrast={false}
+          $highContrast={false}
           soundId="click"
         >
           <Home />        </FloatingBackButton>
@@ -578,7 +591,7 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
         }}
         aria-label="Return to story list"
         title="Go back to story list"
-        highContrast={highContrast}
+        $highContrast={highContrast}
         soundId="click"
       >
         <Home />
@@ -634,25 +647,13 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
                 $highContrast={highContrast}
                 $fontSize={fontSizeMap[fontSize]}
               >                {useSimplifiedText && (
-                  <motion.span
+                  <TextModeIndicator
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    style={{ 
-                      fontSize: '0.7rem', 
-                      color: highContrast ? colors.highContrast.primary : '#42A5F5',
-                      display: 'block',
-                      marginBottom: '8px',
-                      fontWeight: 'bold',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      background: highContrast ? 'rgba(0, 0, 0, 0.3)' : 'rgba(33, 150, 243, 0.08)',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      width: 'fit-content'
-                    }}
+                    $highContrast={highContrast}
                   >
                     Simplified Text
-                  </motion.span>
+                  </TextModeIndicator>
                 )}
                 {displayText}
               </StoryText>
@@ -680,10 +681,9 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
               <NavigationButtonsContainer>
                 {pageHistory.length > 1 && (
                   <IconLabelContainer>
-                    <IconButton
-                      onClick={handleBack}
+                    <IconButton                      onClick={handleBack}
                       active={false}
-                      highContrast={highContrast}
+                      $highContrast={highContrast}
                       whileTap={{ scale: 0.9 }}
                       aria-label="Go back to previous page"
                       title="Previous page"
@@ -703,11 +703,10 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
                 />
 
                 {currentPageIndex < story.pages.length - 1 && (
-                  <IconLabelContainer>
-                    <IconButton
+                  <IconLabelContainer>                    <IconButton
                       onClick={handleNext}
                       active={true}
-                      highContrast={highContrast}
+                      $highContrast={highContrast}
                       whileTap={{ scale: 0.9 }}
                       aria-label="Continue to next page"
                       title="Next page"
@@ -719,11 +718,10 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
                 )}
                 
                 {currentPageIndex === story.pages.length - 1 && (
-                  <IconLabelContainer>
-                    <IconButton
+                  <IconLabelContainer>                    <IconButton
                       onClick={handleStoryComplete}
                       active={true}
-                      highContrast={highContrast}
+                      $highContrast={highContrast}
                       whileTap={{ scale: 0.9 }}
                       aria-label="Finish reading the story"
                       title="Finish Story"
@@ -739,11 +737,10 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
 
           <SettingsContainer>
             <FontSizeControl>
-              <IconLabelContainer>
-                <FontSizeButton
+              <IconLabelContainer>                <FontSizeButton
                   onClick={() => setFontSize('small')}
                   active={fontSize === 'small'}
-                  highContrast={highContrast}
+                  $highContrast={highContrast}
                   whileTap={{ scale: 0.9 }}
                   aria-label="Small text size"
                   title="Small text size"
@@ -757,7 +754,7 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
               <IconLabelContainer>                <FontSizeButton
                   onClick={() => setFontSize('medium')}
                   active={fontSize === 'medium'}
-                  highContrast={highContrast}
+                  $highContrast={highContrast}
                   whileTap={{ scale: 0.9 }}
                   aria-label="Medium text size"
                   title="Medium text size"
@@ -768,11 +765,10 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
                 <IconLabel $highContrast={highContrast}>Medium</IconLabel>
               </IconLabelContainer>
               
-              <IconLabelContainer>
-                <FontSizeButton
+              <IconLabelContainer>                <FontSizeButton
                   onClick={() => setFontSize('large')}
                   active={fontSize === 'large'}
-                  highContrast={highContrast}
+                  $highContrast={highContrast}
                   whileTap={{ scale: 0.9 }}
                   aria-label="Large text size"
                   title="Large text size"
@@ -784,11 +780,10 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
               </IconLabelContainer>
             </FontSizeControl>
             
-            <IconLabelContainer>
-              <ReadAloudButton
+            <IconLabelContainer>              <ReadAloudButton
                 onClick={toggleReadAloud}
                 active={isReading}
-                highContrast={highContrast}
+                $highContrast={highContrast}
                 whileTap={{ scale: 0.9 }}
                 aria-label={isReading ? "Stop reading aloud" : "Read aloud"}
                 title={isReading ? "Stop reading aloud" : "Read aloud"}
@@ -798,11 +793,10 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({
               <IconLabel $highContrast={highContrast}>{isReading ? 'Stop' : 'Read'}</IconLabel>
             </IconLabelContainer>
 
-            <IconLabelContainer>
-              <IconButton
+            <IconLabelContainer>              <IconButton
                 onClick={toggleTextMode}
                 active={useSimplifiedText}
-                highContrast={highContrast}
+                $highContrast={highContrast}
                 whileTap={{ scale: 0.9 }}
                 aria-label={useSimplifiedText ? "Show full text" : "Show simplified text"}
                 title={useSimplifiedText ? "Show full text" : "Show simplified text"}

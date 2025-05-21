@@ -6,7 +6,7 @@ import { soundManager } from '../../utils/sound';
 
 // Define the props interface for the FloatingBackButton
 interface FloatingBackButtonProps {
-  highContrast?: boolean;
+  $highContrast?: boolean;
   onClick?: () => void;
   children: React.ReactNode;
   'aria-label'?: string;
@@ -15,7 +15,7 @@ interface FloatingBackButtonProps {
 }
 
 // Create a motion.button element with styled-components
-const FloatingButtonBase = styled(motion.button)`
+const FloatingButtonBase = styled(motion.button)<{ $isHighContrast: boolean }>`
   position: fixed;
   top: 16px;
   left: 16px;
@@ -42,14 +42,14 @@ const FloatingButtonBase = styled(motion.button)`
 
 // Functional component wrapper to handle high contrast via props
 export const FloatingBackButton: React.FC<FloatingBackButtonProps> = ({
-  highContrast,
+  $highContrast,
   children,
   onClick,
   soundId,
   ...props
 }) => {
   const { highContrast: themeHighContrast } = useTheme();
-  const isHighContrast = highContrast ?? themeHighContrast;
+  const isHighContrast = $highContrast ?? themeHighContrast;
   
   // Handle click with sound
   const handleClick = () => {
@@ -61,16 +61,12 @@ export const FloatingBackButton: React.FC<FloatingBackButtonProps> = ({
     }
   };
   
-  return (
-    <FloatingButtonBase
+  return (    <FloatingButtonBase
       onClick={handleClick}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.9 }}
-      initial={{
-        backgroundColor: isHighContrast ? 'black' : 'rgba(255, 255, 255, 0.9)',
-        border: isHighContrast ? '2px solid white' : '2px solid rgba(33, 150, 243, 0.3)'
-      }}
-      animate={{
+      $isHighContrast={isHighContrast}
+      style={{
         backgroundColor: isHighContrast ? 'black' : 'rgba(255, 255, 255, 0.9)',
         border: isHighContrast ? '2px solid white' : '2px solid rgba(33, 150, 243, 0.3)'
       }}

@@ -9,20 +9,20 @@ import { AlphabetDisplay } from './components/letters/AlphabetDisplay';
 import { NumberDisplay } from './components/numbers/NumberDisplay';
 import { StoryList } from './components/stories/StoryList';
 
-const AppContainer = styled.div<{ highContrast: boolean }>`
+const AppContainer = styled.div<{ $highContrast: boolean }>`
   min-height: 100vh;
-  background: ${props => props.highContrast 
+  background: ${props => props.$highContrast 
     ? colors.highContrast.background 
     : 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 50%, #B2DFDB 100%)'};
-  color: ${props => props.highContrast ? colors.highContrast.text : colors.normal.text};
+  color: ${props => props.$highContrast ? colors.highContrast.text : colors.normal.text};
   overflow-x: hidden;
   padding: 8px;
   padding-bottom: 100px; /* Increased to make room for bottom navigation */
   border-radius: 4px;
 `;
 
-const Navigation = styled.nav<{ highContrast: boolean }>`
-  background: ${props => props.highContrast 
+const Navigation = styled.nav<{ $highContrast: boolean }>`
+  background: ${props => props.$highContrast 
     ? colors.highContrast.surface
     : 'linear-gradient(90deg, #2196F3 0%, #4CAF50 100%)'};
   padding: 16px;
@@ -53,12 +53,12 @@ const NavList = styled.ul`
   max-width: 600px;
 `;
 
-const NavItem = styled(motion.li)<{ highContrast?: boolean }>`
+const NavItem = styled(motion.li)<{ $highContrast?: boolean }>`
   a {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: ${props => props.highContrast ? colors.highContrast.text : 'white'};
+    color: ${props => props.$highContrast ? colors.highContrast.text : 'white'};
     text-decoration: none;
     font-size: 0.9rem;
     padding: 8px 16px;
@@ -87,24 +87,24 @@ const MainContentContainer = styled.div`
   flex-direction: column;
 `;
 
-const MainContent = styled.main<{ highContrast: boolean }>`
+const MainContent = styled.main<{ $highContrast: boolean }>`
   width: 100%;
-  color: ${props => props.highContrast ? colors.highContrast.text : colors.normal.text};
+  color: ${props => props.$highContrast ? colors.highContrast.text : colors.normal.text};
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const ContrastToggleButton = styled(motion.button)<{ highContrast?: boolean }>`
+const ContrastToggleButton = styled(motion.button)<{ $highContrast?: boolean }>`
   width: 44px;
   height: 44px;
   padding: 8px;
   border: none;
   border-radius: 50%;
-  background: ${props => props.highContrast 
+  background: ${props => props.$highContrast 
     ? colors.highContrast.surface 
     : '#2196F3'};  /* Changed to blue (#2196F3) to match the home button */
-  color: ${props => props.highContrast 
+  color: ${props => props.$highContrast 
     ? colors.highContrast.text 
     : colors.normal.background};
   cursor: pointer;
@@ -120,15 +120,13 @@ const ContrastToggleButton = styled(motion.button)<{ highContrast?: boolean }>`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(33, 150, 243, 0.5);
-    background: ${props => props.highContrast 
+    box-shadow: 0 6px 12px rgba(33, 150, 243, 0.5);    background: ${props => props.$highContrast 
       ? colors.highContrast.surface 
       : '#1976D2'};  /* Slightly darker blue on hover */
   }
 
   &:active {
-    transform: translateY(0);
-    background: ${props => props.highContrast 
+    transform: translateY(0);    background: ${props => props.$highContrast 
       ? colors.highContrast.surface 
       : '#0D47A1'};  /* Even darker blue when active */
   }
@@ -142,10 +140,9 @@ const App = () => {
 
   return (
     <Router basename="/kids-learn">
-      <AppContainer highContrast={highContrast}>
-        <ContrastToggleButton
+      <AppContainer $highContrast={highContrast}>        <ContrastToggleButton
           onClick={toggleHighContrast}
-          highContrast={highContrast}
+          $highContrast={highContrast}
           aria-pressed={highContrast}
           aria-label={highContrast ? 'Switch to normal mode' : 'Switch to high contrast mode'}
           whileHover={{ scale: 1.1 }}
@@ -162,23 +159,20 @@ const App = () => {
             <Route path="/stories" element={<StoryList />} />
             <Route path="/" element={<AlphabetDisplay />} />
           </Routes>
-        </MainContentContainer>
-
-        <Navigation highContrast={highContrast}>
+        </MainContentContainer>        <Navigation $highContrast={highContrast}>
           <NavList>
-            <NavItem whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} highContrast={highContrast}>
+            <NavItem whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} $highContrast={highContrast}>
               <Link to="/letters">
                 <span role="img" aria-label="Letters icon">📚</span>
                 Letters
               </Link>
-            </NavItem>
-            <NavItem whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} highContrast={highContrast}>
+            </NavItem>            <NavItem whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} $highContrast={highContrast}>
               <Link to="/numbers">
                 <span role="img" aria-label="Numbers icon">🔢</span>
                 Numbers
               </Link>
             </NavItem>
-            <NavItem whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} highContrast={highContrast}>
+            <NavItem whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} $highContrast={highContrast}>
               <Link to="/stories">
                 <span role="img" aria-label="Stories icon">📖</span>
                 Stories

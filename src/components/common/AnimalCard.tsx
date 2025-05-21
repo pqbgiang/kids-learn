@@ -13,7 +13,7 @@ interface AnimalCardProps {
   speakOnClick?: boolean;
 }
 
-const Card = styled(motion.div)<{ highContrast: boolean }>`
+const Card = styled(motion.div)<{ $highContrast: boolean }>`
   width: 100%;
   height: 100%;
   display: flex;
@@ -21,20 +21,19 @@ const Card = styled(motion.div)<{ highContrast: boolean }>`
   align-items: center;
   gap: clamp(8px, 1vh, 12px);
   padding: clamp(12px, 2vh, 16px);
-  background: ${props => props.highContrast ? colors.highContrast.surface : 'white'};
+  background: ${props => props.$highContrast ? colors.highContrast.surface : 'white'};
   border-radius: 12px;
-  box-shadow: ${props => props.highContrast ? 'none' : '0 8px 16px rgba(0, 0, 0, 0.1)'};
-  border: ${props => props.highContrast ? '2px solid white' : 'none'};
+  box-shadow: ${props => props.$highContrast ? 'none' : '0 8px 16px rgba(0, 0, 0, 0.1)'};
+  border: ${props => props.$highContrast ? '2px solid white' : 'none'};
   cursor: pointer;
   aspect-ratio: 1;
   transition: box-shadow 0.3s ease, transform 0.2s ease;
-
   &:hover {
-    box-shadow: ${props => props.highContrast ? 'none' : '0 12px 24px rgba(0, 0, 0, 0.15)'};
+    box-shadow: ${props => props.$highContrast ? 'none' : '0 12px 24px rgba(0, 0, 0, 0.15)'};
   }
 
   &:focus {
-    outline: ${props => props.highContrast ? '2px solid white' : '2px solid #2196F3'};
+    outline: ${props => props.$highContrast ? '2px solid white' : '2px solid #2196F3'};
     outline-offset: 4px;
   }
 
@@ -43,19 +42,19 @@ const Card = styled(motion.div)<{ highContrast: boolean }>`
   }
 `;
 
-const AnimalImage = styled(motion.img)<{ highContrast: boolean }>`
+const AnimalImage = styled(motion.img)<{ $highContrast: boolean }>`
   width: 100%;
   height: auto;
   max-height: 75%;
   object-fit: contain;
-  filter: ${props => props.highContrast ? 'grayscale(1) invert(1) contrast(1000%)' : 'none'};
+  filter: ${props => props.$highContrast ? 'grayscale(1) invert(1) contrast(1000%)' : 'none'};
   transition: transform 0.3s ease;
 `;
 
-const AnimalName = styled(motion.h3)<{ highContrast: boolean }>`
+const AnimalName = styled(motion.h3)<{ $highContrast: boolean }>`
   margin: 0;
   font-size: clamp(1rem, 2vh, 1.2rem);
-  color: ${props => props.highContrast ? colors.highContrast.text : colors.normal.text};
+  color: ${props => props.$highContrast ? colors.highContrast.text : colors.normal.text};
   text-align: center;
   transition: color 0.3s ease;
 `;
@@ -217,8 +216,7 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
         ease: "easeOut"
       }}
       onClick={handleClick}
-      onKeyPress={handleKeyPress}
-      highContrast={highContrast}
+      onKeyPress={handleKeyPress}      $highContrast={highContrast}
       tabIndex={0}
       role="button"
       aria-label={`${name} - Click to hear pronunciation`}
@@ -229,7 +227,7 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          color: highContrast ? '#fff' : '#ccc'
+          color: highContrast ? colors.highContrast.text : '#ccc'
         }}>
           Loading...
         </div>
@@ -242,18 +240,17 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '3rem',
-              color: highContrast ? '#fff' : '#2196F3'
+              color: highContrast ? colors.highContrast.text : '#2196F3'
             }}>
               {name.charAt(0).toUpperCase()} {/* Display first letter as placeholder */}
             </div>          ) : (            <AnimalImage              
               src={imageSrc}
               // Use the same optimized image path for consistency
-              alt={name}
-              loading="lazy"
+              alt={name}              loading="lazy"
               decoding="async"
               onError={handleImageError}
               style={{ display: isLoaded ? 'block' : 'none' }}
-              highContrast={highContrast}
+              $highContrast={highContrast}
               animate={{ scale: 1 }}
               whileHover={{ 
                 scale: 1.1,
@@ -262,9 +259,8 @@ export const AnimalCard: React.FC<AnimalCardProps> = ({
             />
           )}
         </>
-      )}
-      <AnimalName 
-        highContrast={highContrast}
+      )}      <AnimalName 
+        $highContrast={highContrast}
         whileHover={{ 
           scale: 1.05,
           color: colors.normal.primary

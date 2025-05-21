@@ -45,31 +45,30 @@ interface ToggleButtonProps {
   isActive?: boolean;
 }
 
-const ToggleButton = styled(BaseIconButton)<ToggleButtonProps & { highContrast?: boolean }>`
+const ToggleButton = styled(BaseIconButton)<ToggleButtonProps & { $highContrast?: boolean }>`
   top: 20px;
   left: 20px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: ${props => props.highContrast 
+  background: ${props => props.$highContrast 
     ? colors.highContrast.surface 
     : '#2196F3'};  /* Changed to blue (#2196F3) to match home button */
-  color: ${props => props.highContrast 
+  color: ${props => props.$highContrast 
     ? colors.highContrast.text 
     : colors.normal.background};
   transition: all 0.2s ease;
-  opacity: ${props => props.isActive ? 0 : 1};
-  pointer-events: ${props => props.isActive ? 'none' : 'auto'};
+  opacity: ${props => props.isActive ? 0 : 1};  pointer-events: ${props => props.isActive ? 'none' : 'auto'};
   box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);  /* Updated shadow to match blue color */
-  border: ${props => props.highContrast ? '2px solid white' : 'none'};
+  border: ${props => props.$highContrast ? '2px solid white' : 'none'};
   font-size: 1rem;
   font-weight: bold;
   
   &:hover {
-    background: ${props => props.highContrast 
+    background: ${props => props.$highContrast 
       ? colors.highContrast.text 
       : '#1976D2'};  /* Darker blue on hover */
-    color: ${props => props.highContrast 
+    color: ${props => props.$highContrast 
       ? colors.highContrast.surface 
       : colors.normal.background};
     box-shadow: 0 6px 12px rgba(33, 150, 243, 0.5);
@@ -78,7 +77,7 @@ const ToggleButton = styled(BaseIconButton)<ToggleButtonProps & { highContrast?:
   &:active {
     transform: translateY(1px);
     box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
-    background: ${props => props.highContrast 
+    background: ${props => props.$highContrast 
       ? colors.highContrast.surface 
       : '#0D47A1'};  /* Even darker blue when active */
   }
@@ -197,10 +196,16 @@ const LetterDisplay = styled.div`
   position: relative;
 `;
 
-const Letter = styled(motion.div)<{ letterIndex: number }>`
+// Create a base div component with the $letterIndex prop
+interface LetterProps {
+  $letterIndex: number;
+}
+
+// Combine the LetterProps with motion.div props
+const Letter = styled(motion.div)<LetterProps & { letterIndex?: never }>`
   font-size: clamp(160px, 18vh, 220px);
   font-weight: bold;
-  color: ${props => getLetterColor(props.letterIndex).main};
+  color: ${props => getLetterColor(props.$letterIndex).main};
   text-align: center;
   line-height: 1;
   user-select: none;
@@ -210,11 +215,11 @@ const Letter = styled(motion.div)<{ letterIndex: number }>`
   align-items: center;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
-  text-shadow: 2px 2px 0 ${props => getLetterColor(props.letterIndex).shadow},
-               4px 4px 0 ${props => getLetterColor(props.letterIndex).main}33,
+  text-shadow: 2px 2px 0 ${props => getLetterColor(props.$letterIndex).shadow},
+               4px 4px 0 ${props => getLetterColor(props.$letterIndex).main}33,
                -1px -1px 0 rgba(255, 255, 255, 0.7);
   position: relative;
-  padding: 16px 16px 32px 16px; // Added more bottom padding for sound button overlap
+  padding: 16px 16px 32px 16px;
 
   &::before {
     content: '';
@@ -231,9 +236,9 @@ const Letter = styled(motion.div)<{ letterIndex: number }>`
   }
 
   &:hover {
-    color:rgb(80, 67, 255);
+    color: rgb(80, 67, 255);
     transform: translateY(-4px);
-    text-shadow: 3px 3px 0rgb(16, 7, 182),
+    text-shadow: 3px 3px 0 rgb(16, 7, 182),
                  6px 6px 0 rgba(244, 81, 30, 0.4),
                  -1px -1px 0 rgba(255, 255, 255, 0.9);
 
@@ -242,6 +247,8 @@ const Letter = styled(motion.div)<{ letterIndex: number }>`
     }
   }
 `;
+
+// Not needed anymore as we defined Letter directly
 
 const SoundButtonWrapper = styled.div`
   position: relative;
@@ -508,14 +515,13 @@ const getLetterColor = (index: number) => {
   };
 };
 
-// Removed scrollListRef function as it's no longer needed
-
 export const AlphabetDisplay = () => {
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [currentAnimalIndex, setCurrentAnimalIndex] = useState(0);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [isNavVisible, setIsNavVisible] = useState(false);
-  const [isInteracting, setIsInteracting] = useState(false);  const [autoCollapseTimer, setAutoCollapseTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const [autoCollapseTimer, setAutoCollapseTimer] = useState<NodeJS.Timeout | null>(null);
   const { highContrast } = useTheme();
   const { announce } = useScreenReader();
 
@@ -545,9 +551,7 @@ export const AlphabetDisplay = () => {
       }
     }
   };
-    // Removed scrollUp and scrollDown functions as they're no longer needed
 
-  // Clear timer on unmount
   useEffect(() => {
     return () => {
       if (autoCollapseTimer) {
@@ -555,7 +559,7 @@ export const AlphabetDisplay = () => {
       }
     };
   }, [autoCollapseTimer]);
-  // Start timer when nav becomes visible and there's no interaction
+
   useEffect(() => {
     if (isNavVisible && !isInteracting) {
       const timer = setTimeout(() => {
@@ -575,12 +579,9 @@ export const AlphabetDisplay = () => {
     setIsFirstLoad(false);
     if (!isFirstLoad) {
       textToSpeechService.speak(currentLetter).catch(error => {
-        // Log the error but don't disrupt the app
         console.warn('Failed to speak letter:', error);
       });
     }
-    
-    // Preload images for the current letter and adjacent letters
     preloadAdjacentLetterImages(currentLetterIndex, alphabet);
   }, [currentLetter, isFirstLoad, currentLetterIndex]);
 
@@ -603,7 +604,9 @@ export const AlphabetDisplay = () => {
       setCurrentAnimalIndex(0);
     }
   };
-  const slideInVariants = {    currentInitial: {
+
+  const slideInVariants = {
+    currentInitial: {
       x: '100%',
       scale: 0.3,
       opacity: 0,
@@ -634,7 +637,8 @@ export const AlphabetDisplay = () => {
         duration: 0.4,
         ease: [0.4, 0, 0.2, 1]
       }
-    },    nextInitial: {
+    },
+    nextInitial: {
       x: '120%',
       y: '0%',
       scale: 0.3,
@@ -674,7 +678,8 @@ export const AlphabetDisplay = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-    >      <ToggleButton
+    >
+      <ToggleButton
         onClick={() => {
           setIsNavVisible(!isNavVisible);
           startAutoCollapseTimer();
@@ -682,13 +687,15 @@ export const AlphabetDisplay = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         isActive={isNavVisible}
-        highContrast={highContrast}
+        $highContrast={highContrast}
         aria-label={isNavVisible ? "Hide alphabet menu" : "Show alphabet menu"}
         title={isNavVisible ? "Hide alphabet menu" : "Show alphabet menu"}
       >
         ABC
-      </ToggleButton><AnimatePresence>
-        {isNavVisible && (          <AlphabetNav
+      </ToggleButton>
+      <AnimatePresence>
+        {isNavVisible && (
+          <AlphabetNav
             initial={{ height: 0, opacity: 0, scaleY: 0 }}
             animate={{ height: "340px", opacity: 1, scaleY: 1 }}
             exit={{ height: 0, opacity: 0, scaleY: 0 }}
@@ -698,9 +705,9 @@ export const AlphabetDisplay = () => {
             onMouseMove={() => handleNavInteraction('enter')}
             onTouchStart={() => handleNavInteraction('enter')}
             onTouchEnd={() => handleNavInteraction('leave')}
-            onScroll={() => handleNavInteraction('enter')}          >            <AlphabetList
-              role="list"
-            >
+            onScroll={() => handleNavInteraction('enter')}
+          >
+            <AlphabetList role="list">
               {alphabet.map((letter) => {
                 const letterIndex = alphabet.indexOf(letter);
                 return (
@@ -717,7 +724,8 @@ export const AlphabetDisplay = () => {
                     {letter}
                   </AlphabetButton>
                 );
-              })}            </AlphabetList>
+              })}
+            </AlphabetList>
           </AlphabetNav>
         )}
       </AnimatePresence>
@@ -735,7 +743,7 @@ export const AlphabetDisplay = () => {
           <LetterDisplay>
             <Letter
               key={currentLetter}
-              letterIndex={currentLetterIndex}
+              $letterIndex={currentLetterIndex}
               initial={isFirstLoad ? { scale: 0, opacity: 0 } : { scale: 0.5, opacity: 0, rotateY: -180 }}
               animate={{ scale: 1, opacity: 1, rotateY: 0 }}
               exit={{ scale: 0.5, opacity: 0, rotateY: 180 }}
@@ -769,7 +777,8 @@ export const AlphabetDisplay = () => {
           >
             ›
           </NavigationButtonRight>
-        </LetterSection>        <AnimalContainer>
+        </LetterSection>
+        <AnimalContainer>
           <AnimatePresence mode="popLayout">
             {/* Current Animal */}
             {currentAnimalIndex < animalsForCurrentLetter.length && (
@@ -788,7 +797,7 @@ export const AlphabetDisplay = () => {
                 />
               </AnimalWrapper>
             )}
-              {/* Next Animal */}
+            {/* Next Animal */}
             {animalsForCurrentLetter.length > 0 && (
               <AnimalWrapper
                 key={`next-${animalsForCurrentLetter[
@@ -799,7 +808,8 @@ export const AlphabetDisplay = () => {
                 animate="nextAnimate"
                 exit="nextExit"
                 position="next"
-              >                <AnimalCard
+              >
+                <AnimalCard
                   name={animalsForCurrentLetter[
                     (currentAnimalIndex + 1) % animalsForCurrentLetter.length
                   ].name}
@@ -807,15 +817,13 @@ export const AlphabetDisplay = () => {
                     (currentAnimalIndex + 1) % animalsForCurrentLetter.length
                   ].fileName}
                   speakOnClick={false} // Don't speak when clicked in corner position
-                  onClick={() => {
-                    handleAnimalClick();
-                    // Not speaking here - will speak when it moves to center
-                  }}
+                  onClick={handleAnimalClick}
                 />
               </AnimalWrapper>
             )}
           </AnimatePresence>
-        </AnimalContainer>      </ContentWrapper>
+        </AnimalContainer>
+      </ContentWrapper>
     </Container>
   );
 };
